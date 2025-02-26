@@ -1,12 +1,22 @@
-import { View, Text } from "react-native";
+import { View, Text, SafeAreaView } from "react-native";
 import React from "react";
+import { Link, Redirect } from "expo-router";
+import { quizQuestionsAction } from "@/core/actions/questions/quiz-questions.actions";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 
-const index = () => {
+const App = () => {
+  const queryClient = new QueryClient();
   return (
-    <View className="mt-10">
-      <Text className="text-3xl font-bold text-blue-500">index</Text>
-    </View>
+    <QueryClientProvider client={queryClient}>
+      <Redirect href="/home" />
+    </QueryClientProvider>
   );
 };
 
-export default index;
+export default App;
