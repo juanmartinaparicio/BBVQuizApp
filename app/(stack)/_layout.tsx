@@ -9,7 +9,7 @@ const StackLayout = () => {
         // headerShown: false,
         headerShadowVisible: false,
         contentStyle: {
-          backgroundColor: "#fff",
+          backgroundColor: "#000",
         },
       }}
     >
@@ -19,7 +19,7 @@ const StackLayout = () => {
       />
       <Stack.Screen
         name="questions/index"
-        options={{ title: "Preguntas", animation: "flip" }}
+        options={{ title: "Preguntas", animation: "flip", headerShown: false }}
       />
       <Stack.Screen name="profile/index" options={{ title: "Perfil" }} />
       <Stack.Screen name="settings/index" options={{ title: "Ajustes" }} />

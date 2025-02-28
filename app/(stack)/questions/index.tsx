@@ -1,8 +1,15 @@
+import SlideQuestion from "@/components/shered/SlideQuestion";
 import { quizQuestionsAction } from "@/core/actions/questions/quiz-questions.actions";
 import { Question } from "@/infrastructure/interfaces/question.interface";
 import { useQuestions } from "@/presentation/hooks/useQuestions";
-import React, { useState, useEffect } from "react";
-import { SafeAreaView, useWindowDimensions } from "react-native";
+import { router } from "expo-router";
+import React, { useState, useRef } from "react";
+import {
+  Alert,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  SafeAreaView,
+} from "react-native";
 import {
   View,
   Text,
@@ -11,44 +18,61 @@ import {
   StyleSheet,
   FlatList,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const QuestionsScreen = () => {
-  const safeArea = useSafeAreaInsets();
+  // const safeArea = useSafeAreaInsets();
   const { questionQuery } = useQuestions();
-  //>>>>>>>>>>>>>>>>>>>>>>>>
+  const [score, setScore] = useState(0);
+  const [showResult, setShowResult] = useState(false);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const flatListRef = useRef<FlatList>(null);
 
-  // const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  // const [loading, setLoading] = useState(true);
-  // const [score, setScore] = useState(0);
-  // const [selectedAnswer, setSelectedAnswer] = useState<Boolean>(false);
-  // const handleAnswer = (answer: string) => {
-  //   const currentQuestion = questions[currentQuestionIndex];
-  //   const isCorrect = answer === currentQuestion.correct_answer;
-  //   setSelectedAnswer(isCorrect);
+  const handleAnswer = (answer: string, item: Question) => {
+    if (answer === item.correct_answer) {
+      if (item.type === "multiple") {
+        setScore((prevScore) => prevScore + 10);
+      } else {
+        setScore((prevScore) => prevScore + 5);
+      }
+      Alert.alert("Respuesta correcta");
+    } else {
+      Alert.alert("Respuesta incorrecta", "Vamos tu puedes!!!", [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: () => {
+            if (currentSlideIndex < 9) {
+              scrollToSlide(currentSlideIndex + 1);
+            } else {
+              setShowResult(true);
+            }
+          },
+        },
+      ]);
+    }
+    // setTimeout(() => {
+    //   if (currentSlideIndex < 9) {
+    //     scrollToSlide(currentSlideIndex + 1);
+    //   } else {
+    //     setShowResult(true);
+    //   }
+    // }, 1500);
+  };
 
-  //   if (isCorrect) {
-  //     setScore(
-  //       (prevScore) => prevScore + (currentQuestion.type === "boolean" ? 5 : 10)
-  //     );
-  //   }
+  const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { contentOffset, layoutMeasurement } = event.nativeEvent;
+    const currentIndex = Math.round(contentOffset.x / layoutMeasurement.width);
+    setCurrentSlideIndex(currentIndex > 0 ? currentIndex : 0);
+  };
 
-  //   setTimeout(() => {
-  //     if (currentQuestionIndex < questions.length - 1) {
-  //       setCurrentQuestionIndex(currentQuestionIndex + 1);
-  //       setSelectedAnswer(null);
-  //     } else {
-  //       alert(`Juego terminado! Puntuación: ${score}/${questions.length * 10}`);
-  //     }
-  //   }, 1000);
-  // };
-
-  // const currentQuestion = questions[currentQuestionIndex];
-  // const shuffledAnswers = [
-  //   ...currentQuestion.incorrect_answers,
-  //   currentQuestion.correct_answer,
-  // ].sort(() => Math.random() - 0.5);
-  ////////////////
+  const scrollToSlide = (index: number) => {
+    if (!flatListRef.current) return;
+    flatListRef.current.scrollToIndex({ index: index, animated: true });
+  };
 
   if (questionQuery.isLoading) {
     return (
@@ -58,16 +82,42 @@ const QuestionsScreen = () => {
     );
   }
 
+  if (showResult) {
+    return (
+      <SafeAreaView className="bg-black flex-1 justify-center items-center p-3">
+        <Text className="text-[#fff] text-5xl">
+          Felicidades has terminado el juego
+        </Text>
+        <Text className="text-[#fff] text-3xl">Tu puntaje es: {score}</Text>
+        <TouchableOpacity
+          className="bg-yellow-500 justify-end p-2 rounded mt-2"
+          onPress={() => {
+            router.push("/(stack)/home");
+          }}
+        >
+          <Text>Volver al inicio</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <View className=" mt-2 " style={{ paddingTop: safeArea.top }}>
+    <View className=" mt-2 ">
       <FlatList
+        ref={flatListRef}
         data={questionQuery.data}
         keyExtractor={(item) => item.question}
         horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={true}
+        scrollEnabled={false}
+        onScroll={onScroll}
         renderItem={({ item }) => (
           <SlideQuestion
             question={item}
-            onAnswer={() => {}}
+            onAnswer={(option) => {
+              handleAnswer(option, item);
+            }}
             selectedAnswer={null}
           />
         )}
@@ -75,96 +125,5 @@ const QuestionsScreen = () => {
     </View>
   );
 };
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  category: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  difficulty: {
-    fontSize: 16,
-    marginBottom: 10,
-    color: "gray",
-  },
-  question: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  button: {
-    backgroundColor: "#3498db",
-    padding: 10,
-    marginVertical: 5,
-    width: "80%",
-    alignItems: "center",
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-  },
-  feedback: {
-    marginTop: 20,
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "green",
-  },
-  loader: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});
 
 export default QuestionsScreen;
-
-interface SlideQuestionProps {
-  question: Question;
-  onAnswer: (answer: string) => void;
-  selectedAnswer: string | null;
-}
-
-const SlideQuestion = ({
-  question,
-  onAnswer,
-  selectedAnswer,
-}: SlideQuestionProps) => {
-  const { width, height } = useWindowDimensions();
-
-  // const shuffledAnswers = [
-  //   ...question.incorrect_answers,
-  //   question.correct_answer,
-  // ].sort(() => Math.random() - 0.5);
-
-  const shuffledAnswers = [...question.options].sort(() => Math.random() - 0.5);
-
-  return (
-    <View style={[styles.container, { width, height }]}>
-      <Text style={styles.category}>{question.category}</Text>
-      <Text style={styles.difficulty}>Dificultad: {question.difficulty}</Text>
-      <Text style={styles.question}>{question.question}</Text>
-      {shuffledAnswers.map((answer, index) => (
-        <TouchableOpacity
-          key={index}
-          style={styles.button}
-          onPress={() => onAnswer(answer)}
-          disabled={selectedAnswer !== null}
-        >
-          <Text style={styles.buttonText}>{answer}</Text>
-        </TouchableOpacity>
-      ))}
-      {selectedAnswer !== null && (
-        <Text style={styles.feedback}>
-          {selectedAnswer ? "Respuesta correcta!" : "Respuesta incorrecta!"}
-        </Text>
-      )}
-    </View>
-  );
-};
