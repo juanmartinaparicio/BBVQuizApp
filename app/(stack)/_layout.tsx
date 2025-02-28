@@ -6,14 +6,17 @@ const StackLayout = () => {
   return (
     <Stack
       screenOptions={{
-        // headerShown: false
+        // headerShown: false,
         headerShadowVisible: false,
         contentStyle: {
           backgroundColor: "#fff",
         },
       }}
     >
-      <Stack.Screen name="home/index" options={{ title: "Inicio" }} />
+      <Stack.Screen
+        name="home/index"
+        options={{ title: "Inicio", headerShown: false }}
+      />
       <Stack.Screen
         name="questions/index"
         options={{ title: "Preguntas", animation: "flip" }}

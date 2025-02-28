@@ -1,89 +1,77 @@
 import { quizQuestionsAction } from "@/core/actions/questions/quiz-questions.actions";
+import { Question } from "@/infrastructure/interfaces/question.interface";
+import { useQuestions } from "@/presentation/hooks/useQuestions";
 import React, { useState, useEffect } from "react";
+import { SafeAreaView, useWindowDimensions } from "react-native";
 import {
   View,
   Text,
   TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
+  FlatList,
 } from "react-native";
-
-// const QUIZ_API_URL = "https://opentdb.com/api.php?amount=10";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const QuestionsScreen = () => {
-  // const [questions, setQuestions] = useState([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [score, setScore] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<Boolean>(false);
+  const safeArea = useSafeAreaInsets();
+  const { questionQuery } = useQuestions();
+  //>>>>>>>>>>>>>>>>>>>>>>>>
 
-  const questions = quizQuestionsAction();
+  // const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  // const [loading, setLoading] = useState(true);
+  // const [score, setScore] = useState(0);
+  // const [selectedAnswer, setSelectedAnswer] = useState<Boolean>(false);
+  // const handleAnswer = (answer: string) => {
+  //   const currentQuestion = questions[currentQuestionIndex];
+  //   const isCorrect = answer === currentQuestion.correct_answer;
+  //   setSelectedAnswer(isCorrect);
 
-  // useEffect(() => {
-  //   fetch(QUIZ_API_URL)
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       setQuestions(data.results);
-  //       setLoading(false);
-  //     })
-  //     .catch((error) => console.error("Error fetching questions:", error));
-  // }, []);
+  //   if (isCorrect) {
+  //     setScore(
+  //       (prevScore) => prevScore + (currentQuestion.type === "boolean" ? 5 : 10)
+  //     );
+  //   }
 
-  const handleAnswer = (answer: string) => {
-    const currentQuestion = questions[currentQuestionIndex];
-    const isCorrect = answer === currentQuestion.correct_answer;
-    setSelectedAnswer(isCorrect);
+  //   setTimeout(() => {
+  //     if (currentQuestionIndex < questions.length - 1) {
+  //       setCurrentQuestionIndex(currentQuestionIndex + 1);
+  //       setSelectedAnswer(null);
+  //     } else {
+  //       alert(`Juego terminado! Puntuación: ${score}/${questions.length * 10}`);
+  //     }
+  //   }, 1000);
+  // };
 
-    if (isCorrect) {
-      setScore(
-        (prevScore) => prevScore + (currentQuestion.type === "boolean" ? 5 : 10)
-      );
-    }
+  // const currentQuestion = questions[currentQuestionIndex];
+  // const shuffledAnswers = [
+  //   ...currentQuestion.incorrect_answers,
+  //   currentQuestion.correct_answer,
+  // ].sort(() => Math.random() - 0.5);
+  ////////////////
 
-    setTimeout(() => {
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1);
-        setSelectedAnswer(null);
-      } else {
-        alert(`Juego terminado! Puntuación: ${score}/${questions.length * 10}`);
-      }
-    }, 1000);
-  };
-
-  if (loading) {
+  if (questionQuery.isLoading) {
     return (
-      <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />
+      <View className=" justify-center items-center">
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
     );
   }
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const shuffledAnswers = [
-    ...currentQuestion.incorrect_answers,
-    currentQuestion.correct_answer,
-  ].sort(() => Math.random() - 0.5);
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.category}>{currentQuestion.category}</Text>
-      <Text style={styles.difficulty}>
-        Dificultad: {currentQuestion.difficulty}
-      </Text>
-      <Text style={styles.question}>{currentQuestion.question}</Text>
-      {shuffledAnswers.map((answer, index) => (
-        <TouchableOpacity
-          key={index}
-          style={styles.button}
-          onPress={() => handleAnswer(answer)}
-          disabled={selectedAnswer !== null}
-        >
-          <Text style={styles.buttonText}>{answer}</Text>
-        </TouchableOpacity>
-      ))}
-      {selectedAnswer !== null && (
-        <Text style={styles.feedback}>
-          {selectedAnswer ? "Respuesta correcta!" : "Respuesta incorrecta!"}
-        </Text>
-      )}
+    <View className=" mt-2 " style={{ paddingTop: safeArea.top }}>
+      <FlatList
+        data={questionQuery.data}
+        keyExtractor={(item) => item.question}
+        horizontal
+        renderItem={({ item }) => (
+          <SlideQuestion
+            question={item}
+            onAnswer={() => {}}
+            selectedAnswer={null}
+          />
+        )}
+      />
     </View>
   );
 };
@@ -136,3 +124,47 @@ const styles = StyleSheet.create({
 });
 
 export default QuestionsScreen;
+
+interface SlideQuestionProps {
+  question: Question;
+  onAnswer: (answer: string) => void;
+  selectedAnswer: string | null;
+}
+
+const SlideQuestion = ({
+  question,
+  onAnswer,
+  selectedAnswer,
+}: SlideQuestionProps) => {
+  const { width, height } = useWindowDimensions();
+
+  // const shuffledAnswers = [
+  //   ...question.incorrect_answers,
+  //   question.correct_answer,
+  // ].sort(() => Math.random() - 0.5);
+
+  const shuffledAnswers = [...question.options].sort(() => Math.random() - 0.5);
+
+  return (
+    <View style={[styles.container, { width, height }]}>
+      <Text style={styles.category}>{question.category}</Text>
+      <Text style={styles.difficulty}>Dificultad: {question.difficulty}</Text>
+      <Text style={styles.question}>{question.question}</Text>
+      {shuffledAnswers.map((answer, index) => (
+        <TouchableOpacity
+          key={index}
+          style={styles.button}
+          onPress={() => onAnswer(answer)}
+          disabled={selectedAnswer !== null}
+        >
+          <Text style={styles.buttonText}>{answer}</Text>
+        </TouchableOpacity>
+      ))}
+      {selectedAnswer !== null && (
+        <Text style={styles.feedback}>
+          {selectedAnswer ? "Respuesta correcta!" : "Respuesta incorrecta!"}
+        </Text>
+      )}
+    </View>
+  );
+};

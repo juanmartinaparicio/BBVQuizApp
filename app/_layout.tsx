@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import "../app/global.css";
 import { Slot, SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const RootLayout = () => {
   SplashScreen.preventAutoHideAsync();
@@ -19,8 +20,13 @@ const RootLayout = () => {
   }, [fontsLoaded, error]);
   if (!fontsLoaded && !error) return null;
 
-  return <Slot />;
-  // return <Stack />;
+  const queryClient = new QueryClient();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Stack screenOptions={{ headerShown: false }} />
+    </QueryClientProvider>
+  );
 };
 
 export default RootLayout;

@@ -3,8 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 
 export const useQuestions = () => {
   const questionQuery = useQuery({
-    queryKey: ["questions"],
-    queryFn: () => quizQuestionsAction(),
+    queryKey: ["questions", "quiz"],
+    queryFn: quizQuestionsAction,
     staleTime: 1000 * 60 * 60, // 1 hora de cache
   });
 

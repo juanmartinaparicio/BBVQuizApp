@@ -1,47 +1,35 @@
-import { View, Text, SafeAreaView } from "react-native";
+import {
+  View,
+  ImageBackground,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+} from "react-native";
 import React from "react";
-import { Link, router } from "expo-router";
-import CustomButton from "@/components/shered/CustomButton";
-import { useQuestions } from "@/presentation/hooks/useQuestions";
+import { router } from "expo-router";
 
-const ProfileScreen = () => {
-  const { questionQuery } = useQuestions();
+const HomeScreen = () => {
   return (
-    <SafeAreaView>
-      <View>
-        <CustomButton
-          className="mb-2"
-          color="primary"
-          onPress={() => router.push("/questions")}
+    <ImageBackground
+      source={require("../../../assets/images/WhatsApp Image 2025-02-25 at 23.34.30.jpeg")}
+      className="flex-1 justify-center items-center resize-y"
+    >
+      <View className="flex-1 justify-end items-center">
+        <TouchableOpacity
+          className="bg-yellow-500 px-20 py-2 mb-4 rounded-20"
+          onPress={() => router.push("/(stack)/questions")}
         >
-          Preguntas
-        </CustomButton>
-        <CustomButton
-          className="mb-2"
-          color="secondary"
-          onPress={() => router.push("/profile")}
-        >
-          Perfil
-        </CustomButton>
-        <CustomButton
-          className="mb-2"
-          color="tertiary"
-          onPress={() => router.push("/settings")}
-        >
-          Ajustes
-        </CustomButton>
-        {/* <Link href="/products" className="text-blue-500 px-10 mb-10">
-          products{""}
-        </Link>
-        <Link href="/profile" className="text-blue-500 px-10 mb-10">
-          profile {""}
-        </Link>
-        <Link href="/settings" className="text-blue-500 px-10 mb-10">
-          Ajustes
-        </Link> */}
+          <Text style={styles.buttonText}>Iniciar Partida</Text>
+        </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </ImageBackground>
   );
 };
-
-export default ProfileScreen;
+const styles = StyleSheet.create({
+  buttonText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#333",
+  },
+});
+export default HomeScreen;
