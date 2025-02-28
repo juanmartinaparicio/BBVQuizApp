@@ -9,13 +9,10 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   SafeAreaView,
-} from "react-native";
-import {
   View,
   Text,
   TouchableOpacity,
   ActivityIndicator,
-  StyleSheet,
   FlatList,
 } from "react-native";
 
@@ -48,13 +45,6 @@ const QuestionsScreen = () => {
         },
       ]);
     }
-    // setTimeout(() => {
-    //   if (currentSlideIndex < 9) {
-    //     scrollToSlide(currentSlideIndex + 1);
-    //   } else {
-    //     setShowResult(true);
-    //   }
-    // }, 1500);
   };
 
   const changeSlide = () => {
@@ -86,18 +76,20 @@ const QuestionsScreen = () => {
 
   if (showResult) {
     return (
-      <SafeAreaView className="bg-black flex-1 justify-center items-center p-3">
-        <Text className="text-[#fff] text-5xl">
+      <SafeAreaView className="bg-black items-center">
+        <Text className="text-[#fff] font-bold text-4xl mt-40 mb-20">
           Felicidades has terminado el juego
         </Text>
-        <Text className="text-[#fff] text-3xl">Tu puntaje es: {score}</Text>
+        <Text className="text-[#fff] text-3xl mb-40">
+          Tu puntaje es: {score}
+        </Text>
         <TouchableOpacity
           className="bg-yellow-500 justify-end p-2 rounded mt-2"
           onPress={() => {
             router.push("/(stack)/home");
           }}
         >
-          <Text>Volver al inicio</Text>
+          <Text className="font-semibold text-xl">Volver al inicio</Text>
         </TouchableOpacity>
       </SafeAreaView>
     );
