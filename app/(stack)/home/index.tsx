@@ -13,7 +13,7 @@ const HomeScreen = () => {
   return (
     <>
       <ImageBackground
-        source={require("../../../assets/images/WhatsApp Image 2025-02-25 at 23.34.30.jpeg")}
+        source={require("../../../assets/images/WhatsApp Image 2025-02-25 at 23.33.48.jpeg")}
         className="flex-1 justify-center items-center resize-y"
       >
         <View className="flex-1 justify-end items-center">
