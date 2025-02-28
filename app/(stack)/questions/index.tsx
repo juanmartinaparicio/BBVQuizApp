@@ -34,23 +34,17 @@ const QuestionsScreen = () => {
       } else {
         setScore((prevScore) => prevScore + 5);
       }
-      Alert.alert("Respuesta correcta");
+      Alert.alert("Respuesta correcta", "Asi se hace!!!", [
+        {
+          text: "OK",
+          onPress: changeSlide,
+        },
+      ]);
     } else {
       Alert.alert("Respuesta incorrecta", "Vamos tu puedes!!!", [
         {
-          text: "Cancel",
-          onPress: () => console.log("Cancel Pressed"),
-          style: "cancel",
-        },
-        {
           text: "OK",
-          onPress: () => {
-            if (currentSlideIndex < 9) {
-              scrollToSlide(currentSlideIndex + 1);
-            } else {
-              setShowResult(true);
-            }
-          },
+          onPress: changeSlide,
         },
       ]);
     }
@@ -61,6 +55,14 @@ const QuestionsScreen = () => {
     //     setShowResult(true);
     //   }
     // }, 1500);
+  };
+
+  const changeSlide = () => {
+    if (currentSlideIndex < 9) {
+      scrollToSlide(currentSlideIndex + 1);
+    } else {
+      setShowResult(true);
+    }
   };
 
   const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
